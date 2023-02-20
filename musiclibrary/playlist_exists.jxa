@@ -1,0 +1,19 @@
+function run(argv) {
+    const music = Application("Music");
+
+    var playlist = "All Music"
+    if (argv[0]) playlist = argv[0];
+
+    const playlists = music.playlists().map(p => {
+        return {
+            "name": p.name()
+        }
+    });
+    const found = playlists.find(p => p.name === playlist)
+    if (found === undefined) {
+        console.log("not found")
+    } else {
+        console.log("found")
+    }
+}
+

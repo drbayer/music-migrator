@@ -1,0 +1,30 @@
+function run(argv) {
+    const music = Application("Music");
+
+    var playlist = "All Music";
+    var start = 0;
+    var end = 5;
+
+    if (argv[0]) playlist = argv[0];
+    if (argv[1]) start = Number(argv[1]);
+    if (argv[2]) end = Number(argv[2]);
+
+    const myPlaylist = music.playlists.whose( { name: playlist } )[0].tracks();
+    const playlistItems = myPlaylist.slice(start, end).map(track => {
+        let trackPath = "";
+        let artist = track.artist();
+        if (track.albumArtist() != "") artist = track.albumArtist();
+        if (track.class() == "fileTrack") trackPath = decodeURIComponent(track.location());
+        return {
+        "trackName": track.name(),
+        "albumArtist": artist,
+        "trackNumber": track.trackNumber(),
+        "discNumber": track.discNumber(),
+        "albumName": track.album(),
+        "fileLocation": trackPath
+        }
+        });
+
+    console.log(JSON.stringify({ "items": playlistItems }));
+}
+
