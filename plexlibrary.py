@@ -4,9 +4,8 @@ import logging
 
 
 class PlexLibrary:
-    def __init__(self, media_path=path.expanduser("~/tmp/music/plexlib"), parentlog=None):
-        logname = '.'.join([parentlog, "PlexLibrary"]) if parentlog else "PlexLibrary"
-        self.logger = logging.getLogger(logname)
+    def __init__(self, media_path=path.expanduser("~/tmp/music/plexlib")):
+        self.logger = logging.getLogger("PlexLibrary")
         self.logger.info(f"Initializing PlexLibrary with media path {media_path}")
         self.media_path = media_path
         if not path.exists(media_path):

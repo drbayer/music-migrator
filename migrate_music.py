@@ -3,13 +3,15 @@
 from musicdb import MusicDB
 from musiclibrary import MusicLibrary
 from plexlibrary import PlexLibrary
-from musicfile import MusicFile
 from os import path
 import click
 import logging
 
 
-@click.command()
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+
+
+@click.command(context_settings=CONTEXT_SETTINGS)
 @click.option('-p', '--playlist', prompt=True, default="All Music", show_default=True, help="Name of playlist to migrate")
 @click.option('-m', '--mediadir', prompt=True, default="/Volumes/Media", show_default=True, help="Root media dir for Plex library")
 @click.option('-u', '--musicdir', prompt=True, default="Music", show_default=True, help="Music dir in Plex media library")
@@ -21,26 +23,21 @@ def migrate(playlist, mediadir, musicdir, database, verbose):
     mediadir = path.expanduser(mediadir)
     destination_dir = path.join(mediadir, musicdir)
     migration_db = path.join(mediadir, database)
-    PlexLib = PlexLibrary(media_path=destination_dir, parentlog=logger.name)
-    MigrationDB = MusicDB(database_name=migration_db, parentlog=logger.name)
-    AppleMusic = MusicLibrary(playlist=playlist, parentlog=logger.name)
+    PlexLib = PlexLibrary(media_path=destination_dir)
+    MigrationDB = MusicDB(database_name=migration_db)
+    AppleMusic = MusicLibrary(playlist=playlist)
     AppleMusic.get_track_data(page_length="all")
     migrate_tracks(AppleMusic.tracks, PlexLib, MigrationDB)
 
 
 def migrate_tracks(tracks, plex, db):
     for track in tracks:
-        if track.fileLocation is None:
+        if track.sourceFile is None:
             logger.info(f"Track \"{track.trackName}\" from album \"{track.albumName}\" by {track.albumArtist} not available locally. Skipping track.")
             continue
 
         plex.build_filename(track)
-        if path.exists(track.destinationFile):
-            if track.sourceCheckSum == MusicFile.get_checksum(track.destinationFile):
-                logger.info(f"Track \"{track.trackName}\" from album \"{track.albumName}\" by {track.albumArtist}",
-                            "already exists in destination. Skipping track.")
-                continue
-        track.copy_file()
+        track.copy_file(db)
 
 
 logging.basicConfig(level=logging.DEBUG,

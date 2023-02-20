@@ -5,9 +5,8 @@ from sys import exit
 
 
 class MusicDB:
-    def __init__(self, database_name="music_migration.db", parentlog=None):
-        logname = '.'.join([parentlog, "MusicDB"]) if parentlog else "MusicDB"
-        self.logger = logging.getLogger(logname)
+    def __init__(self, database_name="music_migration.db"):
+        self.logger = logging.getLogger("MusicDB")
         self.logger.info("Initializing MusicDB")
         create_statement = """
         CREATE TABLE IF NOT EXISTS music(
@@ -44,3 +43,13 @@ class MusicDB:
         with self.db:
             self.logger.debug(f"Writing to database for {trackname} by {artist} from album {album}")
             self.db.execute(insert_statement)
+
+    def found(self, album, checksum):
+        select_statement = f'SELECT COUNT(checksum) FROM music WHERE album="{album}" AND checksum="{checksum}"'
+        cursor = self.db.cursor()
+        cursor.execute(select_statement)
+        result = cursor.fetchone()[0]
+        if result == 1:
+            return True
+        else:
+            return False

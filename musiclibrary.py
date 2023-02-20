@@ -6,9 +6,8 @@ from musictrack import MusicTrack
 
 
 class MusicLibrary:
-    def __init__(self, playlist="All Music", parentlog=None):
-        logname = '.'.join([parentlog, "MusicLibrary"]) if parentlog else "MusicLibrary"
-        self.logger = logging.getLogger(logname)
+    def __init__(self, playlist="All Music"):
+        self.logger = logging.getLogger("MusicLibrary")
         self.logger.info('Initializing MusicLibrary')
         self.playlist = playlist
         if self.playlist_exists():
