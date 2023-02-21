@@ -13,9 +13,12 @@ class PlexLibrary:
             exit(1)
 
     def build_filename(self, track):
-        destFolder = path.join(self.media_path, track.albumArtist, track.albumName)
-        if track.discNumber == 0 or track.discNumber is None:
-            track.discNumber = 1
-        destFilename = f"{track.discNumber}{track.trackNumber:02} - {track.trackName}{path.splitext(track.sourceFile)[1]}"
-        track.destinationFile = path.join(destFolder, destFilename)
-        self.logger.debug(f"Setting destination filename for {track} to {track.destinationFile}")
+        if not track.sourceFile:
+            self.logger.warn(f"Source file not set for {track}. Not setting destinationFile.")
+        else:
+            destFolder = path.join(self.media_path, track.albumArtist, track.albumName)
+            if track.discNumber == 0 or track.discNumber is None:
+                track.discNumber = 1
+            destFilename = f"{track.discNumber}{track.trackNumber:02} - {track.trackName}{path.splitext(track.sourceFile)[1]}"
+            track.destinationFile = path.join(destFolder, destFilename)
+            self.logger.debug(f"Setting destination filename for {track} to {track.destinationFile}")

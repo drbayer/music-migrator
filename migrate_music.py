@@ -32,12 +32,14 @@ def migrate(playlist, mediadir, musicdir, database, verbose):
 
 def migrate_tracks(tracks, plex, db):
     for track in tracks:
-        if track.sourceFile is None:
-            logger.info(f"Track \"{track.trackName}\" from album \"{track.albumName}\" by {track.albumArtist} not available locally. Skipping track.")
-            continue
-
-        plex.build_filename(track)
-        track.copy_file(db)
+        if db.found(track):
+            logger.debug(f"Track {track} already migrated. Skipping track.")
+        else:
+            if not track.sourceFile:
+                logger.info(f"Track {track} not available locally. Skipping track.")
+            else:
+                plex.build_filename(track)
+                track.copy_file(db)
 
 
 logging.basicConfig(level=logging.DEBUG,

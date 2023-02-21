@@ -55,6 +55,7 @@ class MusicLibrary:
                 track_info = self.run_script(script, self.playlist, str(starting_track), str(next_track))
                 for track in json.loads(track_info)["items"]:
                     tracks.append(MusicTrack(**track))
+                    self.logger.debug(f"Found track {track}")
             except subprocess.CalledProcessError as e:
                 print(track_info.stdout)
                 print(e)

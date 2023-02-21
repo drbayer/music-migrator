@@ -19,7 +19,7 @@ class MusicDB:
         sourcefile VARCHAR,
         destfile VARCHAR,
         checksum VARCHAR,
-        UNIQUE(artist, album, trackname)
+        UNIQUE(artist, album, trackname, checksum)
         );
         """
         if not path.exists(path.dirname(database_name)):
@@ -36,18 +36,22 @@ class MusicDB:
         self.db.close()
 
     def add(self, artist, album, trackname, tracknumber, discnumber, sourcefile, destfile, checksum):
-        insert_statement = f"""
+        insert_statement = """
         INSERT INTO music (artist, album, trackname, tracknumber, discnumber, sourcefile, destfile, checksum)
-        VALUES ("{artist}", "{album}", "{trackname}", {tracknumber}, {discnumber}, "{sourcefile}", "{destfile}", "{checksum}");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
         """
+        params = (artist, album, trackname, tracknumber, discnumber, sourcefile, destfile, checksum)
         with self.db:
             self.logger.debug(f"Writing to database for {trackname} by {artist} from album {album}")
-            self.db.execute(insert_statement)
+            self.db.execute(insert_statement, params)
 
-    def found(self, album, checksum):
-        select_statement = f'SELECT COUNT(checksum) FROM music WHERE album="{album}" AND checksum="{checksum}"'
+    def found(self, track):
+        params = (track.trackName, track.albumName, track.albumArtist, track.trackNumber, track.discNumber)
+        print(params)
+        select_statement = """SELECT COUNT(checksum) FROM music
+        WHERE trackname=? AND album=? AND artist=? AND tracknumber=? AND discnumber=?"""
         cursor = self.db.cursor()
-        cursor.execute(select_statement)
+        cursor.execute(select_statement, params)
         result = cursor.fetchone()[0]
         if result == 1:
             return True
